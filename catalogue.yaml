@@ -56,7 +56,7 @@
   - name: load product data or not 
     ansible.builtin.command: mongosh --host mongodb.msdev.online --eval 'db.getMongo().getDBNames().indexOf("catalogue")'
     register: catalogue_output
-   - name: print catalogue output
+  - name: print catalogue output
     ansible.builtin.debug:
       msg: "{{ catalogue_output }}"
 
