@@ -7,7 +7,8 @@
   - name: enable nodejs:20
     ansible.builtin.command: dnf module enable nodejs:20 -y
   - name: install node js
-     name: nodejs
+    ansible.builtin.dnf:
+     name: node js
      state: present
   - name: create roboshop system user
     ansible.builtin.user:
@@ -28,6 +29,43 @@
       src: /tmp/catalogue.zip
       dest: /app
       remote_src: yes
+  - name: install dependencies
+    community.general.npm:
+      path: /app
+  - name: copy catalogue service to system directory
+    ansible.builtin.copy:
+      src: catalogue.service
+      dest: /etc/systemd/system/catalogue.service
+  - name: sytem daemon reload
+    ansible.builtin.systemd_service:
+      daemon-reload: true
+  - name: start and enable catalogue
+    ansible.builtin.service:
+      name: catalogue
+      state: started
+      enabled: yes
+  - name: copy mongodb repo
+    ansible.builtin.copy:
+      src: mongo.repo
+      dest: /etc/yum.repos.d/mongo.repo
+
+  - name: install mongodb
+    ansible.builtin.dnf:
+      name: mongodb-mongosh
+      state: present
+  - name: load product data or not 
+    ansible.builtin.command: mongosh --host mongodb.msdev.online --eval 'db.getMongo().getDBNames().indexOf("catalogue")'
+    register: catalogue_output
+   - name: print catalogue output
+    ansible.builtin.debug:
+      msg: "{{ catalogue_output }}"
+
+  - name: load products
+    ansible.builtin.shell: mongosh --host mongodb.msdev.online < /app/db/master-data.js
+    when: catalogue_output.stdout | int < 0
+  
+
+
 
 
 
