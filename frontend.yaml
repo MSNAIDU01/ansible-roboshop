@@ -49,6 +49,7 @@
     ansible.builtin.copy:
       src: nginx.conf
       dest: /etc/nginx/nginx.conf
+      validate: 'nginx -t -c %s'
 
   - name: restart nginx
     ansible.builtin.service:
