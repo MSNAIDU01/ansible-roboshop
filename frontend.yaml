@@ -18,13 +18,6 @@
       name: nginx
       state: started
       enabled: yes
-  - name: Validate and Restart nginx
-    block:
-
-      - name: Validate nginx configuration
-        command: nginx -t
-        register: nginx_validate
-        changed_when: false
 
   - name: remove html directory
     ansible.builtin.file:
@@ -56,7 +49,6 @@
     ansible.builtin.copy:
       src: nginx.conf
       dest: /etc/nginx/nginx.conf
-      validate: 'nginx -t -c %s'
 
   - name: restart nginx
     ansible.builtin.service:
